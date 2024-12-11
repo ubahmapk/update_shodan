@@ -1,0 +1,28 @@
+{
+    "python.analysis.extraPaths": [ "${workspaceFolder}/src" ],
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.stubPath": "${workspaceFolder}/typings",
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+        },
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "ruff.configurationPreference": "filesystemFirst",
+    "ruff.configuration": "${workspaceFolder}/.ruff.toml",
+    "ruff.enable": true,
+    "ruff.lint.extendSelect": [
+        "I"
+    ],
+    "ruff.nativeServer": "on",
+    "ruff.trace.server": "messages",
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "python.analysis.ignore": [
+        "layers"
+    ],
+    "python.analysis.diagnosticMode": "workspace",
+}
