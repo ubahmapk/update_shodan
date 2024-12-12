@@ -81,7 +81,7 @@ def print_shodan_alerts(shodan_alerts: list[ShodanAlert]) -> None:
     return None
 
 
-def find_home_network_shodan_alert_id(
+def find_home_network_shodan_alert(
     shodan_alerts: list[ShodanAlert],
 ) -> ShodanAlert:
     """
@@ -100,7 +100,8 @@ def find_home_network_shodan_alert_id(
         if alert.name == "Home Network":
             return alert
 
-    raise ValueError("No Home Network alert found")
+    print("No Home Network alert found")
+    raise typer.Exit(1)
 
 
 def public_ip_has_changed(current_ip: IPNetwork, shodan_alert: ShodanAlert) -> bool:
@@ -208,6 +209,15 @@ def cli(
             show_default=False,
         ),
     ] = False,
+    clean: Annotated[
+        bool,
+        typer.Option(
+            "--clean", "-c", help="Remove all other IPs from the Shodan alert"
+        ),
+    ] = False,
+    no_scan: Annotated[
+        bool, typer.Option("--no-scan", "-n", help="Don't start a new Shodan scan")
+    ] = False,
 ) -> None:
     """
     Command line interface for updating Shodan alerts for the home network.
@@ -227,26 +237,33 @@ def cli(
 
     shodan_alerts = list_shodan_alerts(shodan_client)
 
-    print_shodan_alerts(shodan_alerts)
+    # print_shodan_alerts(shodan_alerts)
 
-    try:
-        alert_id: str = find_home_network_shodan_alert_id(shodan_alerts)
-    except ValueError as e:
-        raise typer.Abort() from e
+    home_alert: ShodanAlert = find_home_network_shodan_alert(shodan_alerts)
 
-    if not public_ip_has_changed(current_ip, alert_id):
+    if clean and home_alert.size > 1:
+        print(f"Removing all other IPs from the Shodan alert")
+        if not dry_run:
+            update_shodan_alert(shodan_client, home_alert, current_ip)
+
+    if not public_ip_has_changed(current_ip, home_alert):
         print()
         print(f"[green]Current IP {current_ip} has not changed[/green]")
         print()
         raise typer.Exit(0)
 
     print()
-    print(f"[red]Current IP {current_ip} has changed[/red]")
+    print(f"[red]IP has changed ({current_ip})[/red]")
     print()
 
     if not dry_run:
-        update_shodan_alert(shodan_client, alert_id, current_ip)
-        start_new_shodan_scan(shodan_client, current_ip)
+        print(f"Updating Shodan alert")
+        update_shodan_alert(shodan_client, home_alert, current_ip)
+        print(f"[green]Success[/green]")
+        if not no_scan:
+            print()
+            print(f"Starting new Shodan scan")
+            start_new_shodan_scan(shodan_client, current_ip)
 
     return None
 
