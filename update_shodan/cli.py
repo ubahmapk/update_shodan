@@ -7,7 +7,7 @@ from rich import print
 from shodan import APIError as SAPIError
 from shodan import Shodan
 
-from __version__ import __version__
+from update_shodan.__version__ import __version__
 from update_shodan.shodan_data import ShodanAlert
 
 
