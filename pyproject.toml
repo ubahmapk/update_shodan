@@ -1,6 +1,6 @@
 [project]
 name = "update-shodan"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python script to identify current IP address and update Shodan alert"
 readme = "README.md"
 authors = [ { name = "Jon Mark Allen", email = "ubahmapk@gmail.com" } ]
