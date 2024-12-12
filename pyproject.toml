@@ -46,8 +46,13 @@ update-shodan = "update_shodan.cli:app"
 
 [dependency-groups]
 dev = [
+    "hatchling>=1.26.3",
     "ipython>=8.30.0",
     "pre-commit>=4.0.1",
     "ruff>=0.8.3",
     "vermin>=1.6.0",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
