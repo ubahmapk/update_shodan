@@ -25,4 +25,16 @@
         "layers"
     ],
     "python.analysis.diagnosticMode": "workspace",
+    "evenBetterToml.formatter.allowedBlankLines": 1,
+    "evenBetterToml.formatter.arrayAutoCollapse": true,
+    "evenBetterToml.formatter.arrayAutoExpand": true,
+    "evenBetterToml.formatter.arrayTrailingComma": true,
+    "evenBetterToml.formatter.columnWidth": 88,
+    "evenBetterToml.formatter.indentEntries": true,
+    "evenBetterToml.formatter.reorderKeys": true,
+    "evenBetterToml.formatter.trailingNewline": true,
+    "evenBetterToml.schema.enabled": false,
+    "evenBetterToml.schema.links": true,
+    "evenBetterToml.syntax.semanticTokens": false,
+    "evenBetterToml.taplo.configFile.enabled": false,
 }

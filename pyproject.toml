@@ -3,10 +3,10 @@ name = "update-shodan"
 version = "0.1.0"
 description = "Python script to identify current IP address and update Shodan alert"
 readme = "README.md"
-authors = [
-    { name = "Jon Mark Allen", email = "ubahmapk@gmail.com" }
-]
+authors = [ { name = "Jon Mark Allen", email = "ubahmapk@gmail.com" } ]
+license = {file = "LICENSE"}
 requires-python = ">=3.13"
+
 dependencies = [
     "click>=8.1.7",
     "httpx>=0.28.1",
@@ -17,8 +17,37 @@ dependencies = [
     "typer>=0.15.1",
 ]
 
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.9",
+  "Topic :: Security",
+  "Topic :: System :: Monitoring",
+  "Topic :: System :: Networking :: Monitoring",
+  "Topic :: System :: Systems Administration",
+  "Topic :: Utilities",
+]
+
+[project.urls]
+Repository = "https://github.com/ubahmapk/update_shodan.git"
+Issues = "https://github.com/ubahmapk/update_shodan/issues"
+
+[project.scripts]
+update-shodan = "update_shodan.cli:app"
+
 [dependency-groups]
 dev = [
     "ipython>=8.30.0",
     "pre-commit>=4.0.1",
+    "ruff>=0.8.3",
+    "vermin>=1.6.0",
 ]
