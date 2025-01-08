@@ -3,7 +3,7 @@ from typing import Annotated
 import typer
 from httpx import Client as HTTPXClient
 from netaddr import IPNetwork
-from rich import print
+from rich import print as rprint
 from shodan import APIError as SAPIError
 from shodan import Shodan
 
@@ -140,8 +140,7 @@ def update_shodan_alert(
     try:
         shodan_client.edit_alert(shodan_alert.id, [current_ip.__str__()])
     except SAPIError as e:
-        print(f"Error updating Shodan alert: {e}")
-        raise typer.Abort() from e
+        raise typer.Abort(f"Error updating Shodan alert: {e}") from e
 
     return None
 
@@ -160,8 +159,7 @@ def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
     try:
         results: dict = shodan_client.scan(current_ip.__str__())
     except SAPIError as e:
-        print(f"Error starting Shodan scan: {e}")
-        raise typer.Abort() from e
+        raise typer.Abort(f"Error starting Shodan scan: {e}") from e
 
     print(f'Started scan: {results["id"]}')
     print(f'Credits left: {results["credits_left"]}')
@@ -186,9 +184,9 @@ def version_callback(value: bool) -> None:
 @app.command()
 def cli(
     shodan_api_key: Annotated[
-        str | None,
+        str,
         typer.Argument(envvar="SHODAN_API_KEY", help="Shodan API key"),
-    ] = None,
+    ] = "",
     dry_run: Annotated[bool, typer.Option("--dry-run", "-d", help="Dry run")] = False,
     verbose: Annotated[
         int,
@@ -228,8 +226,7 @@ def cli(
     """
 
     if not shodan_api_key:
-        print("SHODAN_API_KEY environment variable not set")
-        raise typer.Abort()
+        raise typer.Abort("SHODAN_API_KEY environment variable not set")
 
     shodan_client = shodan_login(shodan_api_key)
     client = HTTPXClient()
@@ -248,18 +245,18 @@ def cli(
 
     if not public_ip_has_changed(current_ip, home_alert):
         print()
-        print(f"[green]Current IP {current_ip} has not changed[/green]")
+        rprint(f"[green]Current IP {current_ip} has not changed[/green]")
         print()
         raise typer.Exit(0)
 
     print()
-    print(f"[red]IP has changed ({current_ip})[/red]")
+    rprint(f"[red]IP has changed ({current_ip})[/red]")
     print()
 
     if not dry_run:
         print(f"Updating Shodan alert")
         update_shodan_alert(shodan_client, home_alert, current_ip)
-        print(f"[green]Success[/green]")
+        rprint(f"[green]Success[/green]")
         if not no_scan:
             print()
             print(f"Starting new Shodan scan")
