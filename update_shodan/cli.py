@@ -1,7 +1,9 @@
+from sys import stderr
 from typing import Annotated
 
 import typer
 from httpx import Client as HTTPXClient
+from loguru import logger
 from netaddr import IPNetwork
 from rich import print as rprint
 from shodan import APIError as SAPIError
@@ -9,6 +11,23 @@ from shodan import Shodan
 
 from update_shodan.__version__ import __version__
 from update_shodan.shodan_data import ShodanAlert
+
+
+def set_logging_level(verbosity: int) -> None:
+    """Set the global logging level"""
+
+    # Default level
+    log_level = "ERROR"
+
+    if verbosity is not None:
+        if verbosity == 1:
+            log_level = "INFO"
+        elif verbosity > 1:
+            log_level = "DEBUG"
+
+    logger.remove(0)
+    # noinspection PyUnboundLocalVariable
+    logger.add(stderr, level=log_level)
 
 
 def shodan_login(shodan_api_key: str) -> Shodan:
@@ -35,7 +54,12 @@ def get_current_public_ip(client: HTTPXClient) -> IPNetwork:
     Returns:
         The current public IP address as an IPNetwork object.
     """
-    return IPNetwork(client.get("https://api.ipify.org").text)
+
+    current_ip: str = client.get("https://api.ipify.org").text
+    logger.debug(f"Current IP: {current_ip}")
+    current_ip_network = IPNetwork(current_ip)
+
+    return current_ip_network
 
 
 def list_shodan_alerts(shodan_client: Shodan) -> list[ShodanAlert]:
@@ -48,6 +72,9 @@ def list_shodan_alerts(shodan_client: Shodan) -> list[ShodanAlert]:
     Returns:
         List of ShodanAlert objects.
     """
+
+    logger.debug(f"Shodan Client Alerts:")
+    logger.debug(f"{shodan_client.alerts()}")
 
     try:
         alerts: list[ShodanAlert] = [
@@ -97,7 +124,10 @@ def find_home_network_shodan_alert(
         ValueError: If no alert with the name "Home Network" is found.
     """
     for alert in shodan_alerts:
+        logger.debug(f"alert name: {alert.name}")
         if alert.name == "Home Network":
+            logger.debug(f"Found Home Network alert")
+            logger.debug(f"{alert=}")
             return alert
 
     print("No Home Network alert found")
@@ -117,6 +147,10 @@ def public_ip_has_changed(current_ip: IPNetwork, shodan_alert: ShodanAlert) -> b
         True if the current IP address is different from the IP address
         currently in the alert, False otherwise.
     """
+    logger.debug(
+        f"IP Networks in current alert: {shodan_alert.filters.ip_network_list}"
+    )
+
     if current_ip in shodan_alert.filters.ip_network_list:
         return False
 
@@ -137,6 +171,9 @@ def update_shodan_alert(
     Returns:
         None
     """
+
+    logger.debug(f"Updating Shodan alert {shodan_alert.id} with {current_ip}")
+
     try:
         shodan_client.edit_alert(shodan_alert.id, [current_ip.__str__()])
     except SAPIError as e:
@@ -160,6 +197,8 @@ def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
         results: dict = shodan_client.scan(current_ip.__str__())
     except SAPIError as e:
         raise typer.Abort(f"Error starting Shodan scan: {e}") from e
+
+    logger.debug(f"Full results listing: {results}")
 
     print(f'Started scan: {results["id"]}')
     print(f'Credits left: {results["credits_left"]}')
@@ -188,7 +227,7 @@ def cli(
         typer.Argument(envvar="SHODAN_API_KEY", help="Shodan API key"),
     ] = "",
     dry_run: Annotated[bool, typer.Option("--dry-run", "-d", help="Dry run")] = False,
-    verbose: Annotated[
+    verbosity: Annotated[
         int,
         typer.Option(
             "--verbose",
@@ -225,6 +264,8 @@ def cli(
     a new Shodan scan if the IP address has changed.
     """
 
+    set_logging_level(verbosity)
+
     if not shodan_api_key:
         raise typer.Abort("SHODAN_API_KEY environment variable not set")
 
@@ -233,8 +274,6 @@ def cli(
     current_ip = get_current_public_ip(client)
 
     shodan_alerts = list_shodan_alerts(shodan_client)
-
-    # print_shodan_alerts(shodan_alerts)
 
     home_alert: ShodanAlert = find_home_network_shodan_alert(shodan_alerts)
 
