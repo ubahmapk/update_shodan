@@ -98,12 +98,7 @@ def print_shodan_alerts(shodan_alerts: list[ShodanAlert]) -> None:
         None
     """
     for alert in shodan_alerts:
-        print(f"ID: {alert.id}")
-        print(f"Name: {alert.name}")
-        print(f"Size: {alert.size}")
-        print(f"Filters:")
-        for address in alert.filters.ip_network_list:
-            print(f"  IP: {address.ip}")
+        print(alert)
 
     return None
 
@@ -200,8 +195,8 @@ def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
 
     logger.debug(f"Full results listing: {results}")
 
-    print(f'Started scan: {results["id"]}')
-    print(f'Credits left: {results["credits_left"]}')
+    print(f"Started scan: {results['id']}")
+    print(f"Credits left: {results['credits_left']}")
     print()
 
     return None
@@ -227,6 +222,9 @@ def cli(
         typer.Argument(envvar="SHODAN_API_KEY", help="Shodan API key"),
     ] = "",
     dry_run: Annotated[bool, typer.Option("--dry-run", "-d", help="Dry run")] = False,
+    print_alerts: Annotated[
+        bool, typer.Option("--print", "-p", help="Print Shodan alerts and exit")
+    ] = False,
     verbosity: Annotated[
         int,
         typer.Option(
@@ -274,6 +272,10 @@ def cli(
     current_ip = get_current_public_ip(client)
 
     shodan_alerts = list_shodan_alerts(shodan_client)
+
+    if print_alerts:
+        print_shodan_alerts(shodan_alerts)
+        raise typer.Exit(0)
 
     home_alert: ShodanAlert = find_home_network_shodan_alert(shodan_alerts)
 
