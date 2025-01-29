@@ -24,3 +24,13 @@ class ShodanAlert(BaseModel):
     name: str
     size: int
     filters: ShodanFilter
+
+    def __str__(self) -> str:
+        message: str = f"Name: {self.name}\n"
+        message += f"ID: {self.id}\n"
+        message += f"Size: {self.size}\n"
+        message += f"Filters:\n"
+        for address in self.filters.ip_network_list:
+            message += f"  IP: {address.ip}\n"
+
+        return message
