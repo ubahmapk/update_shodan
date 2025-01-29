@@ -1,3 +1,5 @@
+from enum import Enum
+
 from netaddr import IPNetwork
 from pydantic import BaseModel, Field, field_validator
 
@@ -19,7 +21,6 @@ class ShodanFilter(BaseModel):
 
 
 class ShodanAlert(BaseModel):
-    model_config = {"arbitrary_types_allowed": True}
     id: str
     name: str
     size: int
@@ -32,5 +33,27 @@ class ShodanAlert(BaseModel):
         message += f"Filters:\n"
         for address in self.filters.ip_network_list:
             message += f"  IP: {address.ip}\n"
+
+        return message
+
+
+class ShodanScanStatus(str, Enum):
+    SUBMITTING = "SUBMITTING"
+    QUEUE = "QUEUE"
+    PROCESSING = "PROCESSING"
+    DONE = "DONE"
+
+
+class ShodanScanResult(BaseModel):
+    count: int
+    id: str
+    status: ShodanScanStatus
+    created: str
+
+    def __str__(self) -> str:
+        message: str = f"Count: {self.count}\n"
+        message += f"ID: {self.id}\n"
+        message += f"Status: {self.status.value}\n"
+        message += f"Created: {self.created}\n"
 
         return message

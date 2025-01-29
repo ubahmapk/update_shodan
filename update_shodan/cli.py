@@ -10,7 +10,7 @@ from shodan import APIError as SAPIError
 from shodan import Shodan
 
 from update_shodan.__version__ import __version__
-from update_shodan.shodan_data import ShodanAlert
+from update_shodan.shodan_data import ShodanAlert, ShodanScanResult
 
 
 def set_logging_level(verbosity: int) -> None:
@@ -172,7 +172,8 @@ def update_shodan_alert(
     try:
         shodan_client.edit_alert(shodan_alert.id, [current_ip.__str__()])
     except SAPIError as e:
-        raise typer.Abort(f"Error updating Shodan alert: {e}") from e
+        rprint(f"[red]Error updating Shodan alert: {e}[/red]")
+        raise typer.Exit(1) from e
 
     return None
 
@@ -191,13 +192,37 @@ def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
     try:
         results: dict = shodan_client.scan(current_ip.__str__())
     except SAPIError as e:
-        raise typer.Abort(f"Error starting Shodan scan: {e}") from e
+        rprint(f"[red]Error starting Shodan scan: {e}[/red]")
+        raise typer.Exit(1) from e
 
     logger.debug(f"Full results listing: {results}")
 
     print(f"Started scan: {results['id']}")
     print(f"Credits left: {results['credits_left']}")
     print()
+
+    return None
+
+
+def print_shodan_scan_results(shodan_client: Shodan, scan_id: str) -> None:
+    """
+    Get the results of a Shodan scan.
+
+    Args:
+        shodan_client: A Shodan client object.
+        scan_id: The ID of the scan.
+
+    Returns:
+        A ShodanScanResult object.
+    """
+
+    try:
+        results: dict = shodan_client.scan_status(scan_id)
+    except SAPIError as e:
+        rprint(f"[red]Error getting Shodan scan results: {e}[/red]")
+        raise typer.Exit(1) from e
+
+    print(ShodanScanResult(**results))
 
     return None
 
@@ -234,6 +259,12 @@ def cli(
     no_scan: Annotated[
         bool, typer.Option("--no-scan", "-n", help="Don't start a new Shodan scan")
     ] = False,
+    show_scan_status: Annotated[
+        bool, typer.Option("--status", "-s", help="Show status of last scan")
+    ] = False,
+    scan_id: Annotated[
+        str, typer.Option("--scan-id", "-i", help="Previous Scan ID")
+    ] = "",
     verbosity: Annotated[
         int,
         typer.Option(
@@ -265,10 +296,20 @@ def cli(
     set_logging_level(verbosity)
 
     if not shodan_api_key:
-        raise typer.Abort("SHODAN_API_KEY environment variable not set")
+        rprint("[red]SHODAN_API_KEY environment variable not set[/red]")
+        raise typer.Exit(1)
 
     shodan_client = shodan_login(shodan_api_key)
     client = HTTPXClient()
+
+    if show_scan_status:
+        if not scan_id:
+            rprint("[red]Please include a Scan ID[/red]")
+            raise typer.Exit(1)
+
+        print_shodan_scan_results(shodan_client, scan_id)
+        raise typer.Exit(0)
+
     current_ip = get_current_public_ip(client)
 
     shodan_alerts = list_shodan_alerts(shodan_client)
