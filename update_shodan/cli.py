@@ -225,6 +225,15 @@ def cli(
     print_alerts: Annotated[
         bool, typer.Option("--print", "-p", help="Print Shodan alerts and exit")
     ] = False,
+    clean: Annotated[
+        bool,
+        typer.Option(
+            "--clean", "-c", help="Remove all other IPs from the Shodan alert"
+        ),
+    ] = False,
+    no_scan: Annotated[
+        bool, typer.Option("--no-scan", "-n", help="Don't start a new Shodan scan")
+    ] = False,
     verbosity: Annotated[
         int,
         typer.Option(
@@ -243,15 +252,6 @@ def cli(
             is_eager=True,
             show_default=False,
         ),
-    ] = False,
-    clean: Annotated[
-        bool,
-        typer.Option(
-            "--clean", "-c", help="Remove all other IPs from the Shodan alert"
-        ),
-    ] = False,
-    no_scan: Annotated[
-        bool, typer.Option("--no-scan", "-n", help="Don't start a new Shodan scan")
     ] = False,
 ) -> None:
     """

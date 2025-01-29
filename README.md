@@ -22,10 +22,11 @@ Usage: update-shodan [OPTIONS] [SHODAN_API_KEY]
 ╰───────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ─────────────────────────────────────────────────────────────────────────────╮
 │ --dry-run  -d               Dry run                                                   │
-│ --verbose  -v      INTEGER  Verbose mode. Repeat for increased verbosity [default: 0] │
-│ --version  -V                                                                         │
+| --print    -p               Print Shodan alerts and exit                              │
 │ --clean    -c               Remove all other IPs from the Shodan alert                │
 │ --no-scan  -n               Don't start a new Shodan scan                             │
+│ --verbose  -v      INTEGER  Verbose mode. Repeat for increased verbosity [default: 0] │
+│ --version  -V                                                                         │
 │ --help     -h               Show this message and exit.                               │
 ╰───────────────────────────────────────────────────────────────────────────────────────╯
 ```
