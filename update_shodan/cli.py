@@ -1,3 +1,6 @@
+from configparser import ConfigParser, DuplicateSectionError
+from contextlib import suppress as contextlib_suppress
+from pathlib import Path
 from sys import stderr
 from typing import Annotated
 
@@ -5,12 +8,13 @@ import typer
 from httpx import Client as HTTPXClient
 from loguru import logger
 from netaddr import IPNetwork
+from platformdirs import PlatformDirs
 from rich import print as rprint
 from shodan import APIError as SAPIError
 from shodan import Shodan
 
 from update_shodan.__version__ import __version__
-from update_shodan.shodan_data import ShodanAlert
+from update_shodan.shodan_data import ShodanAlert, ShodanScanResult
 
 
 def set_logging_level(verbosity: int) -> None:
@@ -28,6 +32,19 @@ def set_logging_level(verbosity: int) -> None:
     logger.remove(0)
     # noinspection PyUnboundLocalVariable
     logger.add(stderr, level=log_level)
+
+
+def get_config_file_and_filename() -> tuple[ConfigParser, Path]:
+    """Return config object for reading / writing, and the config filename"""
+
+    config_dir: PlatformDirs = PlatformDirs(appname="update-shodan", ensure_exists=True)
+    config_filename: Path = Path(config_dir.user_config_path / "shodan.ini")
+
+    # Save scan ID to app config file
+    config: ConfigParser = ConfigParser()
+    config.read(config_filename)
+
+    return (config, config_filename)
 
 
 def shodan_login(shodan_api_key: str) -> Shodan:
@@ -172,7 +189,28 @@ def update_shodan_alert(
     try:
         shodan_client.edit_alert(shodan_alert.id, [current_ip.__str__()])
     except SAPIError as e:
-        raise typer.Abort(f"Error updating Shodan alert: {e}") from e
+        rprint(f"[red]Error updating Shodan alert: {e}[/red]")
+        raise typer.Exit(1) from e
+
+    return None
+
+
+def save_scan_id_to_configfile(scan_id: str) -> None:
+    """Save Shodan Scan ID to config file"""
+
+    config, config_filename = get_config_file_and_filename()
+
+    # Add Shodan section, if it doesn't already exist
+    with contextlib_suppress(DuplicateSectionError):
+        config.add_section("shodan")
+
+    config["shodan"]["scan_id"] = scan_id
+    try:
+        with open(config_filename, "w") as configfile:
+            config.write(configfile)
+        rprint("[green]Saved scan ID to config file[/green]")
+    except OSError as e:
+        rprint(f"[red]Error writing to config file[/red]\n{e}")
 
     return None
 
@@ -191,13 +229,53 @@ def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
     try:
         results: dict = shodan_client.scan(current_ip.__str__())
     except SAPIError as e:
-        raise typer.Abort(f"Error starting Shodan scan: {e}") from e
+        rprint(f"[red]Error starting Shodan scan: {e}[/red]")
+        raise typer.Exit(1) from e
 
     logger.debug(f"Full results listing: {results}")
+
+    save_scan_id_to_configfile(results["id"])
 
     print(f"Started scan: {results['id']}")
     print(f"Credits left: {results['credits_left']}")
     print()
+
+    return None
+
+
+def read_shodan_scan_id_from_config() -> str:
+    """Read the Shodan scan ID from the config file."""
+
+    config, _ = get_config_file_and_filename()
+
+    try:
+        scan_id: str = config["shodan"]["scan_id"]
+    except KeyError as ke:
+        rprint(f"[red]No scan ID found in config file[/red]")
+        raise typer.Exit(1) from ke
+
+    return scan_id
+
+
+def print_shodan_scan_results(shodan_client: Shodan, scan_id: str) -> None:
+    """
+    Get the results of a Shodan scan.
+
+    Args:
+        shodan_client: A Shodan client object.
+        scan_id: The ID of the scan.
+
+    Returns:
+        A ShodanScanResult object.
+    """
+
+    try:
+        results: dict = shodan_client.scan_status(scan_id)
+    except SAPIError as e:
+        rprint(f"[red]Error getting Shodan scan results: {e}[/red]")
+        raise typer.Exit(1) from e
+
+    print(ShodanScanResult(**results))
 
     return None
 
@@ -234,6 +312,17 @@ def cli(
     no_scan: Annotated[
         bool, typer.Option("--no-scan", "-n", help="Don't start a new Shodan scan")
     ] = False,
+    show_scan_status: Annotated[
+        bool, typer.Option("--status", "-s", help="Show status of last scan")
+    ] = False,
+    scan_id: Annotated[
+        str,
+        typer.Option(
+            "--scan-id",
+            "-i",
+            help="Previous Scan ID (Will read from config, if not passed as an option)",
+        ),
+    ] = "",
     verbosity: Annotated[
         int,
         typer.Option(
@@ -265,10 +354,21 @@ def cli(
     set_logging_level(verbosity)
 
     if not shodan_api_key:
-        raise typer.Abort("SHODAN_API_KEY environment variable not set")
+        rprint("[red]SHODAN_API_KEY environment variable not set[/red]")
+        raise typer.Exit(1)
 
     shodan_client = shodan_login(shodan_api_key)
     client = HTTPXClient()
+
+    if show_scan_status:
+        # Read the Scan ID from config, if not passed via CLI
+        if not scan_id:
+            scan_id = read_shodan_scan_id_from_config()
+
+        print_shodan_scan_results(shodan_client, scan_id)
+
+        raise typer.Exit(0)
+
     current_ip = get_current_public_ip(client)
 
     shodan_alerts = list_shodan_alerts(shodan_client)
