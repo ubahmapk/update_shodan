@@ -17,16 +17,18 @@ Usage: update-shodan [OPTIONS] [SHODAN_API_KEY]
  updates the Shodan alert for the home network if necessary. It also initiates a new
  Shodan scan if the IP address has changed.
 
-╭─ Arguments ───────────────────────────────────────────────────────────────────────────╮
-│   shodan_api_key      [SHODAN_API_KEY]  Shodan API key [env var: SHODAN_API_KEY]      │
-╰───────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ─────────────────────────────────────────────────────────────────────────────╮
-│ --dry-run  -d               Dry run                                                   │
-| --print    -p               Print Shodan alerts and exit                              │
-│ --clean    -c               Remove all other IPs from the Shodan alert                │
-│ --no-scan  -n               Don't start a new Shodan scan                             │
-│ --verbose  -v      INTEGER  Verbose mode. Repeat for increased verbosity [default: 0] │
-│ --version  -V                                                                         │
-│ --help     -h               Show this message and exit.                               │
-╰───────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────╮
+│   shodan_api_key      [SHODAN_API_KEY]  Shodan API key [env var: SHODAN_API_KEY]                 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --dry-run  -d               Dry run                                                              │
+| --print    -p               Print Shodan alerts and exit                                         │
+│ --clean    -c               Remove all other IPs from the Shodan alert                           │
+│ --no-scan  -n               Don't start a new Shodan scan                                        │
+│ --status   -s               Show status of last scan                                             │
+| --scan-id  -i      TEXT     Previous Scan ID (Will read from config, if not passed as an option) │
+│ --verbose  -v      INTEGER  Verbose mode. Repeat for increased verbosity [default: 0]            │
+│ --version  -V                                                                                    │
+│ --help     -h               Show this message and exit.                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
