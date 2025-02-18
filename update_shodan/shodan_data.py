@@ -51,8 +51,8 @@ class ShodanScanResult(BaseModel):
     created: str
 
     def __str__(self) -> str:
-        message: str = f"Count: {self.count}\n"
-        message += f"ID: {self.id}\n"
+        message: str = f"ID: {self.id}\n"
+        message += f"IP Count: {self.count}\n"
         message += f"Status: {self.status.value}\n"
         message += f"Created: {self.created}\n"
 
