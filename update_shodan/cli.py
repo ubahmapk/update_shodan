@@ -340,6 +340,9 @@ def cli(
             help="Previous Scan ID (Will read from config, if not passed as an option)",
         ),
     ] = "",
+    api_check: Annotated[
+        bool, typer.Option("--api-check", "-a", help="Print Shodan API Usage Limits")
+    ] = False,
     verbosity: Annotated[
         int,
         typer.Option(
@@ -384,6 +387,11 @@ def cli(
 
         print_shodan_scan_results(shodan_client, scan_id)
 
+        raise typer.Exit(0)
+
+    if api_check:
+        api_info: ShodanAPIInfo = retrieve_api_info(shodan_client)
+        print(api_info)
         raise typer.Exit(0)
 
     current_ip = get_current_public_ip(client)
