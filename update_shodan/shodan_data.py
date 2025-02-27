@@ -4,6 +4,44 @@ from netaddr import IPNetwork
 from pydantic import BaseModel, Field, field_validator
 
 
+class ShodanUsageLimits(BaseModel):
+    scan_credits: int
+    query_credits: int
+    monitored_ips: int
+
+    def __str__(self) -> str:
+        message: str = f"Scan Credits: {self.scan_credits}\n"
+        message += f"Query Credits: {self.query_credits}\n"
+        message += f"Monitored IPs: {self.monitored_ips}\n"
+
+        return message
+
+
+class ShodanAPIInfo(BaseModel):
+    scan_credits: int
+    usage_limits: ShodanUsageLimits
+    plan: str
+    https: bool
+    unlocked: bool
+    query_credits: int
+    monitored_ips: int
+    unlocked_left: int
+    telnet: bool
+
+    def __str__(self) -> str:
+        message: str = f"Scan Credits Remaining: {self.scan_credits}\n"
+        message += f"Plan: {self.plan}\n"
+        message += f"Usage Limits:\n"
+        message += f"  {self.usage_limits}\n"
+        message += f"HTTPS: {self.https}\n"
+        message += f"Unlocked: {self.unlocked}\n"
+        message += f"Unlocked left: {self.unlocked_left}\n"
+        message += f"Query Credits: {self.query_credits}\n"
+        message += f"Monitored IPs: {self.monitored_ips}\n"
+
+        return message
+
+
 class ShodanFilter(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
     ip_network_list: list[IPNetwork] = Field(alias="ip")
