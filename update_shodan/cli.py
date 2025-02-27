@@ -9,12 +9,13 @@ from httpx import Client as HTTPXClient
 from loguru import logger
 from netaddr import IPNetwork
 from platformdirs import PlatformDirs
+from pydantic import ValidationError
 from rich import print as rprint
 from shodan import APIError as SAPIError
 from shodan import Shodan
 
 from update_shodan.__version__ import __version__
-from update_shodan.shodan_data import ShodanAlert, ShodanScanResult
+from update_shodan.shodan_data import ShodanAlert, ShodanAPIInfo, ShodanScanResult
 
 
 def set_logging_level(verbosity: int) -> None:
@@ -59,6 +60,22 @@ def shodan_login(shodan_api_key: str) -> Shodan:
     """
 
     return Shodan(shodan_api_key)
+
+
+def retrieve_api_info(shodan_client: Shodan) -> ShodanAPIInfo:
+    try:
+        resp: dict = shodan_client.info()
+    except SAPIError as e:
+        rprint(f"[red]Error getting Shodan API info: {e}[/red]")
+        raise typer.Exit(1) from e
+
+    try:
+        api_info: ShodanAPIInfo = ShodanAPIInfo(**resp)
+    except ValidationError as e:
+        rprint(f"[red]Error parsing Shodan API info: {e}[/red]")
+        raise typer.Exit(1) from e
+
+    return api_info
 
 
 def get_current_public_ip(client: HTTPXClient) -> IPNetwork:
