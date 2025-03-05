@@ -1,5 +1,7 @@
 {
-    "python.analysis.extraPaths": [ "${workspaceFolder}/src" ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/src"
+    ],
     "python.analysis.autoSearchPaths": true,
     "python.analysis.stubPath": "${workspaceFolder}/typings",
     "[python]": {
@@ -37,4 +39,9 @@
     "evenBetterToml.schema.links": true,
     "evenBetterToml.syntax.semanticTokens": false,
     "evenBetterToml.taplo.configFile.enabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
 }
