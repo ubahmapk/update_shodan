@@ -1,0 +1,6 @@
+{
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.typeCheckingMode": "strict",
+  "venvPath": ".",
+  "venv": ".venv"
+}
