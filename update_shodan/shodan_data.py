@@ -29,15 +29,17 @@ class ShodanAPIInfo(BaseModel):
     telnet: bool
 
     def __str__(self) -> str:
-        message: str = f"Scan Credits Remaining: {self.scan_credits}\n"
-        message += f"Plan: {self.plan}\n"
-        message += f"Usage Limits:\n"
-        message += f"  {self.usage_limits}\n"
-        message += f"HTTPS: {self.https}\n"
-        message += f"Unlocked: {self.unlocked}\n"
-        message += f"Unlocked left: {self.unlocked_left}\n"
-        message += f"Query Credits: {self.query_credits}\n"
-        message += f"Monitored IPs: {self.monitored_ips}\n"
+        message: str = (
+            f"Scan Credits Remaining: {self.scan_credits}\n"
+            f"Plan: {self.plan}\n"
+            f"Usage Limits:\n"
+            f"  {self.usage_limits}\n"
+            f"HTTPS: {self.https}\n"
+            f"Unlocked: {self.unlocked}\n"
+            f"Unlocked left: {self.unlocked_left}\n"
+            f"Query Credits: {self.query_credits}\n"
+            f"Monitored IPs: {self.monitored_ips}\n"
+        )
 
         return message
 
