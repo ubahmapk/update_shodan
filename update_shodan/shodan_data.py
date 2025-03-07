@@ -10,9 +10,11 @@ class ShodanUsageLimits(BaseModel):
     monitored_ips: int
 
     def __str__(self) -> str:
-        message: str = f"Scan Credits: {self.scan_credits}\n"
-        message += f"Query Credits: {self.query_credits}\n"
-        message += f"Monitored IPs: {self.monitored_ips}\n"
+        message: str = (
+            f"Scan Credits: {self.scan_credits}"
+            f"Query Credits: {self.query_credits}"
+            f"Monitored IPs: {self.monitored_ips}"
+        )
 
         return message
 
