@@ -48,7 +48,7 @@ class ShodanAPIInfo(BaseModel):
 
 class ShodanFilter(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
-    ip_network_list: list[IPNetwork] = Field(alias="ip")
+    ip_network_list: list[IPNetwork] = Field(alias="ip", default_factory=list)
 
     @field_validator("ip_network_list", mode="before")
     @classmethod
@@ -68,18 +68,22 @@ class ShodanFilter(BaseModel):
 class ShodanAlert(BaseModel):
     id: str
     name: str
-    size: int
     filters: ShodanFilter
 
-    def __str__(self) -> str:
-        message: str = f"Name: {self.name}\n"
-        message += f"ID: {self.id}\n"
-        message += f"Size: {self.size}\n"
-        message += f"Filters:\n"
-        for address in self.filters.ip_network_list:
-            message += f"  IP: {address.ip}\n"
+    @property
+    def size(self) -> int:
+        return len(self.filters)
 
-        return message
+    def __str__(self) -> str:
+        message: str = (
+            f"Name: {self.name}\nID: {self.id}\nSize: {self.size}\nFilters:\n"
+        )
+
+        addresses: list = [
+            f" IP: {address.ip}" for address in self.filters.ip_network_list
+        ]
+
+        return f"{message}{'\n'.join(addresses)}"
 
 
 class ShodanScanStatus(str, Enum):
@@ -96,9 +100,11 @@ class ShodanScanResult(BaseModel):
     created: str
 
     def __str__(self) -> str:
-        message: str = f"ID: {self.id}\n"
-        message += f"IP Count: {self.count}\n"
-        message += f"Status: {self.status.value}\n"
-        message += f"Created: {self.created}\n"
+        message: str = (
+            f"ID: {self.id}\n"
+            f"IP Count: {self.count}\n"
+            f"Status: {self.status.value}\n"
+            f"Created: {self.created}\n"
+        )
 
         return message
