@@ -17,10 +17,10 @@ Usage: update-shodan [OPTIONS] [SHODAN_API_KEY]
  updates the Shodan alert for the home network if necessary. It also initiates a new
  Shodan scan if the IP address has changed.
 
-╭─ Arguments ──────────────────────────────────────────────────────────────────────────╮
+╭─ Arguments ────────────────────────────────────────────╮
 │   shodan_api_key      [SHODAN_API_KEY]  Shodan API key [env var: SHODAN_API_KEY]     │
-╰──────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+╰────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────╮
 │ --dry-run    -d               Dry run                                                │
 │ --print      -p               Print Shodan alerts and exit                           │
 │ --clean      -c               Remove all other IPs from the Shodan alert             │
@@ -33,5 +33,5 @@ Usage: update-shodan [OPTIONS] [SHODAN_API_KEY]
 │                               [default: 0]                                           │
 │ --version    -V                                                                      │
 │ --help       -h               Show this message and exit.                            │
-╰──────────────────────────────────────────────────────────────────────────────────────╯
+╰────────────────────────────────────────────────────╯
 ```
