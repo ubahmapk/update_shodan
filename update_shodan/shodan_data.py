@@ -57,6 +57,9 @@ class ShodanFilter(BaseModel):
 
         raise TypeError("ip must be a string or list of strings")
 
+    def __len__(self):
+        return len(self.ip_network_list)
+
 
 class ShodanAlert(BaseModel):
     id: str
