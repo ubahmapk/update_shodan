@@ -1,5 +1,5 @@
 line-length = 88
-target-version = "py312"
+target-version = "py313"
 
 [lint]
 select = [
@@ -23,12 +23,12 @@ select = [
 ]
 
 ignore = [
-    'F541',   # f-string without any placeholders
-    'F841',   # Local variable is assigned to but never used
+    # 'F541',   # f-string without any placeholders
+    # 'F841',   # Local variable is assigned to but never used
     'PTH123', # open() should be replaced by Path.open()
     'RET501', # Do not explicitly `return None` in function if it is the only possible return value
     'RET504', # Unnecessary assignment to variable before `return` statement
-    'RET505', # Unnecessary `else` after `return` statement
-    'SIM103', # Return the negated condition directly
-    'E501',   # Line too long
+    # 'RET505', # Unnecessary `else` after `return` statement
+    # 'SIM103', # Return the negated condition directly
+    'E501', # Line too long
 ]
