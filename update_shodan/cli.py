@@ -107,7 +107,7 @@ def list_shodan_alerts(shodan_client: Shodan) -> list[ShodanAlert]:
         List of ShodanAlert objects.
     """
 
-    logger.debug(f"Shodan Client Alerts:")
+    logger.debug("Shodan Client Alerts:")
     logger.debug(f"{shodan_client.alerts()}")
 
     try:
@@ -115,7 +115,7 @@ def list_shodan_alerts(shodan_client: Shodan) -> list[ShodanAlert]:
             ShodanAlert(**alert) for alert in shodan_client.alerts()
         ]
     except SAPIError as e:
-        print(f"Error listing Shodan alerts. Please check your API key and try again.")
+        print("Error listing Shodan alerts. Please check your API key and try again.")
         raise typer.Exit(1) from e
 
     return alerts
@@ -155,7 +155,7 @@ def find_home_network_shodan_alert(
     for alert in shodan_alerts:
         logger.debug(f"alert name: {alert.name}")
         if alert.name == "Home Network":
-            logger.debug(f"Found Home Network alert")
+            logger.debug("Found Home Network alert")
             logger.debug(f"{alert=}")
             return alert
 
@@ -180,10 +180,7 @@ def public_ip_has_changed(current_ip: IPNetwork, shodan_alert: ShodanAlert) -> b
         f"IP Networks in current alert: {shodan_alert.filters.ip_network_list}"
     )
 
-    if current_ip in shodan_alert.filters.ip_network_list:
-        return False
-
-    return True
+    return current_ip not in shodan_alert.filters.ip_network_list
 
 
 def update_shodan_alert(
@@ -268,7 +265,7 @@ def read_shodan_scan_id_from_config() -> str:
     try:
         scan_id: str = config["shodan"]["scan_id"]
     except KeyError as ke:
-        rprint(f"[red]No scan ID found in config file[/red]")
+        rprint("[red]No scan ID found in config file[/red]")
         raise typer.Exit(1) from ke
 
     return scan_id
@@ -405,7 +402,7 @@ def cli(
     home_alert: ShodanAlert = find_home_network_shodan_alert(shodan_alerts)
 
     if clean and home_alert.size > 1:
-        print(f"Removing all other IPs from the Shodan alert")
+        print("Removing all other IPs from the Shodan alert")
         if not dry_run:
             update_shodan_alert(shodan_client, home_alert, current_ip)
 
@@ -420,12 +417,12 @@ def cli(
     print()
 
     if not dry_run:
-        print(f"Updating Shodan alert")
+        print("Updating Shodan alert")
         update_shodan_alert(shodan_client, home_alert, current_ip)
-        rprint(f"[green]Success[/green]")
+        rprint("[green]Success[/green]")
         if not no_scan:
             print()
-            print(f"Starting new Shodan scan")
+            print("Starting new Shodan scan")
             start_new_shodan_scan(shodan_client, current_ip)
 
     return None
