@@ -1,28 +1,36 @@
 line-length = 88
 target-version = "py313"
 
+[lint.pydocstyle]
+convention = "numpy"
+ignore-decorators = ["property"]
+
 [lint]
 select = [
     #"ANN", # Flake8-annotations
-    #"D",  # PyDocstyle
-    "E",   # Pycodestyle errors
-    "F",   # Pyflakes
-    "W",   # Pywicked
-    "B",   # Flake8-bugbear
-    "C4",  # Flake8-comprehensions
-    "I",   # Isort
-    "N",   # PEP8-Naming
-    "PGH", # Flake8-pygments
-    "PTH", # Flake8-pytest-helper
-    "Q",   # Flake8-quotes
-    "RET", # Flake8-return
-    "RUF", # Ruff-specific rules
-    "SIM", # Flake8-simplify
-    "UP",  # Flake8-pyupgrade
-    "YTT", # Flake8-2020
+    "D",    # PyDocstyle
+    "D211", # Docstring is missing a blank line after the summary
+    "E",    # Pycodestyle errors
+    "F",    # Pyflakes
+    "W",    # Pywicked
+    "B",    # Flake8-bugbear
+    "C4",   # Flake8-comprehensions
+    "I",    # Isort
+    "N",    # PEP8-Naming
+    "PGH",  # Flake8-pygments
+    "PTH",  # Flake8-pytest-helper
+    "Q",    # Flake8-quotes
+    "RET",  # Flake8-return
+    "RUF",  # Ruff-specific rules
+    "SIM",  # Flake8-simplify
+    "UP",   # Flake8-pyupgrade
+    "YTT",  # Flake8-2020
 ]
 
 ignore = [
+    'D100', # Missing docstring in public module
+    'D105', # undocumented-magic-method
+    'D202', # No blank line after function docstring
     # 'F541',   # f-string without any placeholders
     # 'F841',   # Local variable is assigned to but never used
     'PTH123', # open() should be replaced by Path.open()
