@@ -19,7 +19,18 @@ from update_shodan.shodan_data import ShodanAlert, ShodanAPIInfo, ShodanScanResu
 
 
 def set_logging_level(verbosity: int) -> None:
-    """Set the global logging level"""
+    """
+    Set the global logging level.
+
+    Parameters
+    ----------
+    verbosity : int
+        The verbosity level to set for logging.
+
+    Returns
+    -------
+    None
+    """
 
     # Default level
     log_level = "ERROR"
@@ -36,7 +47,14 @@ def set_logging_level(verbosity: int) -> None:
 
 
 def get_config_file_and_filename() -> tuple[ConfigParser, Path]:
-    """Return config object for reading / writing, and the config filename"""
+    """
+    Return config object for reading / writing, and the config filename.
+
+    Returns
+    -------
+    tuple of (ConfigParser, Path)
+        A tuple containing the ConfigParser object and the Path to the config file.
+    """
 
     config_dir: PlatformDirs = PlatformDirs(appname="update-shodan", ensure_exists=True)
     config_filename: Path = Path(config_dir.user_config_path / "shodan.ini")
@@ -52,10 +70,14 @@ def shodan_login(shodan_api_key: str) -> Shodan:
     """
     Log in to Shodan with the given API key.
 
-    Args:
-        shodan_api_key (str): The Shodan API key.
+    Parameters
+    ----------
+    shodan_api_key : str
+        The Shodan API key.
 
-    Returns:
+    Returns
+    -------
+    Shodan
         A Shodan client object.
     """
 
@@ -63,6 +85,25 @@ def shodan_login(shodan_api_key: str) -> Shodan:
 
 
 def retrieve_api_info(shodan_client: Shodan) -> ShodanAPIInfo:
+    """
+    Retrieve Shodan API information.
+
+    Parameters
+    ----------
+    shodan_client : Shodan
+        The Shodan client object.
+
+    Returns
+    -------
+    ShodanAPIInfo
+        The Shodan API information.
+
+    Raises
+    ------
+    typer.Exit
+        If there is an error retrieving or parsing the Shodan API information.
+    """
+
     try:
         resp: dict = shodan_client.info()
     except SAPIError as e:
@@ -82,10 +123,14 @@ def get_current_public_ip(client: HTTPXClient) -> IPNetwork:
     """
     Get the current public IP address.
 
-    Args:
-        client: The HTTPX client object.
+    Parameters
+    ----------
+    client : HTTPXClient
+        The HTTPX client object.
 
-    Returns:
+    Returns
+    -------
+    IPNetwork
         The current public IP address as an IPNetwork object.
     """
 
@@ -100,10 +145,14 @@ def list_shodan_alerts(shodan_client: Shodan) -> list[ShodanAlert]:
     """
     List all Shodan alerts.
 
-    Args:
-        shodan_client: The Shodan client object.
+    Parameters
+    ----------
+    shodan_client : Shodan
+        The Shodan client object.
 
-    Returns:
+    Returns
+    -------
+    list of ShodanAlert
         List of ShodanAlert objects.
     """
 
@@ -125,12 +174,16 @@ def print_shodan_alerts(shodan_alerts: list[ShodanAlert]) -> None:
     """
     Print a list of Shodan alerts.
 
-    Args:
-        shodan_alerts (list[ShodanAlert]): List of ShodanAlert objects.
+    Parameters
+    ----------
+    shodan_alerts : list of ShodanAlert
+        List of ShodanAlert objects.
 
-    Returns:
-        None
+    Returns
+    -------
+    None
     """
+
     for alert in shodan_alerts:
         print(alert)
 
@@ -143,15 +196,22 @@ def find_home_network_shodan_alert(
     """
     Find the Shodan alert with the name "Home Network".
 
-    Args:
-        shodan_alerts (list[ShodanAlert]): The list of Shodan alerts.
+    Parameters
+    ----------
+    shodan_alerts : list of ShodanAlert
+        The list of Shodan alerts.
 
-    Returns:
-        ShodanAlert: The Shodan alert with the name "Home Network".
+    Returns
+    -------
+    ShodanAlert
+        The Shodan alert with the name "Home Network".
 
-    Raises:
-        ValueError: If no alert with the name "Home Network" is found.
+    Raises
+    ------
+    ValueError
+        If no alert with the name "Home Network" is found.
     """
+
     for alert in shodan_alerts:
         logger.debug(f"alert name: {alert.name}")
         if alert.name == "Home Network":
@@ -165,17 +225,21 @@ def find_home_network_shodan_alert(
 
 def public_ip_has_changed(current_ip: IPNetwork, shodan_alert: ShodanAlert) -> bool:
     """
-    Check if the current public IP address is different from the IP address
-    stored in the given Shodan alert.
+    Check if the public IP has changed.
 
-    Args:
-        current_ip: The current public IP address.
-        shodan_alert: The Shodan alert to check against.
+    Parameters
+    ----------
+    current_ip : IPNetwork
+        The current public IP address.
+    shodan_alert : ShodanAlert
+        The Shodan alert object.
 
-    Returns:
-        True if the current IP address is different from the IP address
-        currently in the alert, False otherwise.
+    Returns
+    -------
+    bool
+        True if the public IP has changed, False otherwise.
     """
+
     logger.debug(
         f"IP Networks in current alert: {shodan_alert.filters.ip_network_list}"
     )
@@ -187,15 +251,20 @@ def update_shodan_alert(
     shodan_client: Shodan, shodan_alert: ShodanAlert, current_ip: IPNetwork
 ) -> None:
     """
-    Update the given Shodan alert with the current IP address.
+    Update the Shodan alert with the current IP address.
 
-    Args:
-        shodan_client: A Shodan client object.
-        shodan_alert: The Shodan alert to update.
-        current_ip: The current public IP address.
+    Parameters
+    ----------
+    shodan_client : Shodan
+        The Shodan client object.
+    shodan_alert : ShodanAlert
+        The Shodan alert object to be updated.
+    current_ip : IPNetwork
+        The current public IP address.
 
-    Returns:
-        None
+    Returns
+    -------
+    None
     """
 
     logger.debug(f"Updating Shodan alert {shodan_alert.id} with {current_ip}")
@@ -210,7 +279,18 @@ def update_shodan_alert(
 
 
 def save_scan_id_to_configfile(scan_id: str) -> None:
-    """Save Shodan Scan ID to config file"""
+    """
+    Save Shodan Scan ID to config file.
+
+    Parameters
+    ----------
+    scan_id : str
+        The Shodan scan ID to save.
+
+    Returns
+    -------
+    None
+    """
 
     config, config_filename = get_config_file_and_filename()
 
@@ -231,15 +311,20 @@ def save_scan_id_to_configfile(scan_id: str) -> None:
 
 def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
     """
-    Start a new Shodan scan for the given IP address.
+    Start a new Shodan scan with the current IP address.
 
-    Args:
-        shodan_client: A Shodan client object.
-        current_ip: The current public IP address.
+    Parameters
+    ----------
+    shodan_client : Shodan
+        The Shodan client object.
+    current_ip : IPNetwork
+        The current public IP address.
 
-    Returns:
-        None
+    Returns
+    -------
+    None
     """
+
     try:
         results: dict = shodan_client.scan(current_ip.__str__())
     except SAPIError as e:
@@ -258,7 +343,19 @@ def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
 
 
 def read_shodan_scan_id_from_config() -> str:
-    """Read the Shodan scan ID from the config file."""
+    """
+    Read the Shodan scan ID from the config file.
+
+    Returns
+    -------
+    str
+        The Shodan scan ID.
+
+    Raises
+    ------
+    typer.Exit
+        If no scan ID is found in the config file.
+    """
 
     config, _ = get_config_file_and_filename()
 
@@ -273,14 +370,18 @@ def read_shodan_scan_id_from_config() -> str:
 
 def print_shodan_scan_results(shodan_client: Shodan, scan_id: str) -> None:
     """
-    Get the results of a Shodan scan.
+    Print the results of a Shodan scan.
 
-    Args:
-        shodan_client: A Shodan client object.
-        scan_id: The ID of the scan.
+    Parameters
+    ----------
+    shodan_client : Shodan
+        The Shodan client object.
+    scan_id : str
+        The Shodan scan ID.
 
-    Returns:
-        A ShodanScanResult object.
+    Returns
+    -------
+    None
     """
 
     try:
@@ -301,6 +402,19 @@ app = typer.Typer(
 
 
 def version_callback(value: bool) -> None:
+    """
+    Print script version and exit.
+
+    Parameters
+    ----------
+    value : bool
+        The value indicating whether to print the version.
+
+    Returns
+    -------
+    None
+    """
+
     if value:
         print(f"update-shodan version {__version__}")
 

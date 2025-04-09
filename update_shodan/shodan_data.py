@@ -5,6 +5,28 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class ShodanUsageLimits(BaseModel):
+    """
+    Represents the usage limits for Shodan API.
+
+    Attributes
+    ----------
+    scan_credits : int
+        The number of scan credits available.
+    query_credits : int
+        The number of query credits available.
+    monitored_ips : int
+        The number of monitored IPs.
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    str
+        A string representation of the Shodan usage limits.
+    """
+
     scan_credits: int
     query_credits: int
     monitored_ips: int
@@ -20,6 +42,40 @@ class ShodanUsageLimits(BaseModel):
 
 
 class ShodanAPIInfo(BaseModel):
+    """
+    Represents the information retrieved from the Shodan API.
+
+    Attributes
+    ----------
+    scan_credits : int
+        The number of scan credits remaining.
+    usage_limits : ShodanUsageLimits
+        The usage limits for the Shodan API.
+    plan : str
+        The plan associated with the Shodan API key.
+    https : bool
+        Indicates if HTTPS is enabled.
+    unlocked : bool
+        Indicates if the account is unlocked.
+    query_credits : int
+        The number of query credits remaining.
+    monitored_ips : int
+        The number of monitored IPs.
+    unlocked_left : int
+        The number of unlocks left.
+    telnet : bool
+        Indicates if Telnet is enabled.
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    str
+        A string representation of the Shodan API information.
+    """
+
     scan_credits: int
     usage_limits: ShodanUsageLimits
     plan: str
@@ -47,12 +103,47 @@ class ShodanAPIInfo(BaseModel):
 
 
 class ShodanFilter(BaseModel):
+    """
+    Represents a filter for Shodan alerts.
+
+    Attributes
+    ----------
+    ip_network_list : list of netaddr.IPNetwork
+        A list of IP networks to be monitored.
+
+    Methods
+    -------
+    validate_ip(value)
+        Validate and convert the input value to a list of IPNetwork objects.
+    __len__()
+        Returns the number of IP networks in the filter.
+    """
+
     model_config = {"arbitrary_types_allowed": True}
     ip_network_list: list[IPNetwork] = Field(alias="ip", default_factory=list)
 
     @field_validator("ip_network_list", mode="before")
     @classmethod
     def validate_ip(cls, value):
+        """
+        Validate and convert the input value to a list of IPNetwork objects.
+
+        Parameters
+        ----------
+        value : str or list of str
+            The input value to be validated and converted.
+
+        Returns
+        -------
+        list of netaddr.IPNetwork
+            A list of IPNetwork objects.
+
+        Raises
+        ------
+        TypeError
+            If the input value is not a string or list of strings.
+        """
+
         if isinstance(value, str):
             return [IPNetwork(value)]
 
@@ -66,6 +157,26 @@ class ShodanFilter(BaseModel):
 
 
 class ShodanAlert(BaseModel):
+    """
+    Represents a Shodan alert.
+
+    Attributes
+    ----------
+    id : str
+        The unique identifier for the alert.
+    name : str
+        The name of the alert.
+    filters : ShodanFilter
+        The filters associated with the alert.
+
+    Methods
+    -------
+    size
+        Returns the number of IP networks in the alert's filter.
+    __str__()
+        Returns a string representation of the Shodan alert.
+    """
+
     id: str
     name: str
     filters: ShodanFilter
@@ -87,6 +198,21 @@ class ShodanAlert(BaseModel):
 
 
 class ShodanScanStatus(str, Enum):
+    """
+    ShodanScanStatus Enum.
+
+    Attributes
+    ----------
+    SUBMITTING : str
+        The scan is being submitted.
+    QUEUE : str
+        The scan is in the queue.
+    PROCESSING : str
+        The scan is being processed.
+    DONE : str
+        The scan is completed.
+    """
+
     SUBMITTING = "SUBMITTING"
     QUEUE = "QUEUE"
     PROCESSING = "PROCESSING"
@@ -94,6 +220,30 @@ class ShodanScanStatus(str, Enum):
 
 
 class ShodanScanResult(BaseModel):
+    """
+    Represents the result of a Shodan scan.
+
+    Attributes
+    ----------
+    count : int
+        The number of IPs in the scan result.
+    id : str
+        The unique identifier for the scan.
+    status : ShodanScanStatus
+        The current status of the scan.
+    created : str
+        The timestamp when the scan was created.
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    str
+        A string representation of the Shodan scan result.
+    """
+
     count: int
     id: str
     status: ShodanScanStatus
