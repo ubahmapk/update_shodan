@@ -419,14 +419,21 @@ def cli(
     rprint(f"[red]IP has changed ({current_ip})[/red]")
     print()
 
-    if not dry_run:
-        print(f"Updating Shodan alert")
-        update_shodan_alert(shodan_client, home_alert, current_ip)
-        rprint(f"[green]Success[/green]")
-        if not no_scan:
-            print()
-            print(f"Starting new Shodan scan")
-            start_new_shodan_scan(shodan_client, current_ip)
+    if dry_run:
+        print("Dry run mode. No changes have been made.")
+        raise typer.Exit(0)
+
+    print("Updating Shodan alert")
+    update_shodan_alert(shodan_client, home_alert, current_ip)
+    rprint("[green]Success[/green]")
+
+    if no_scan:
+        print("No scan requested. No further action taken.")
+        raise typer.Exit(0)
+
+    print()
+    print(f"Starting new Shodan scan")
+    start_new_shodan_scan(shodan_client, current_ip)
 
     return None
 
