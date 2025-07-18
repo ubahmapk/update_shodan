@@ -1,7 +1,7 @@
 {
   "languages": {
     "Python": {
-      "language_servers": ["pyright", "ruff"],
+      "language_servers": ["basedpyright", "ruff"],
       "format_on_save": "on",
       "formatter": [
         {
@@ -12,15 +12,32 @@
         },
         { "language_server": { "name": "ruff" } }
       ]
-    },
-    "lsp": {
-      "pyright": {
+    }
+  },
+  "lsp": {
+    "ruff": {
+      "initialization_options": {
         "settings": {
-          "python.analysis": {
-            "diagnosticMode": "workspace",
-            "typeCheckingMode": "strict"
-          },
-          "python": { "pythonPath": ".venv/bin/python" }
+          "configuration": ".ruff.toml"
+        }
+      }
+    },
+    "basedpyright": {
+      "binary": {
+        "path": ".venv/bin/basedpyright-langserver",
+        "arguments": ["--stdio"]
+      },
+      "settings": {
+        "python": {
+          "pythonPath": ".venv/bin/python"
+        },
+        "diagnosticMode": "workspace",
+        "disableOrganizeImports": true,
+        "typeCheckingMode": "recommended",
+        "inlayHints": {
+          "variableTypes": true,
+          "functionReturnTypes": true,
+          "genericTypes": true
         }
       }
     }
