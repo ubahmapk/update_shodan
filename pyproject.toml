@@ -48,10 +48,10 @@ update-shodan = "update_shodan.cli:app"
 
 [dependency-groups]
 dev = [
+    "basedpyright>=1.31.0",
     "hatchling>=1.26.3",
     "ipython>=8.30.0",
     "pre-commit>=4.0.1",
-    "pyright>=1.1.396",
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
     "ruff>=0.8.3",

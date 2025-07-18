@@ -1,6 +1,16 @@
 {
-  "python.analysis.diagnosticMode": "workspace",
-  "python.analysis.typeCheckingMode": "strict",
-  "venvPath": ".",
-  "venv": ".venv"
+  "ignore": ["postings/**", "layers/**", "bruno/**", "tests/**"],
+  "pythonVersion": "3.13",
+  "analyzeUnannotatedFunctions": true,
+  "autoImportCompletions": true,
+  "deprecateTypingAliases": true,
+  "enableReachabilityAnalysis": true,
+  "reportMissingImports": "error",
+  "reportMissingTypeStubs": false,
+  "reportUnknownVariableType": false,
+  "reportUnusedCallResult": false,
+  "strictListInference": true,
+  "strictDictionaryInference": true,
+  "strictSetInference": true,
+  "useLibraryCodeForTypes": true
 }
