@@ -2,7 +2,7 @@ from configparser import ConfigParser, DuplicateSectionError
 from contextlib import suppress as contextlib_suppress
 from pathlib import Path
 from sys import stderr
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 from httpx import Client as HTTPXClient
@@ -32,14 +32,13 @@ def set_logging_level(verbosity: int) -> None:
     None
     """
 
-    # Default level
-    log_level = "ERROR"
-
-    if verbosity is not None:
-        if verbosity == 1:
+    match verbosity:
+        case 1:
             log_level = "INFO"
-        elif verbosity > 1:
+        case _ if verbosity > 1:
             log_level = "DEBUG"
+        case _:
+            log_level = "ERROR"
 
     logger.remove(0)
     # noinspection PyUnboundLocalVariable
@@ -105,7 +104,7 @@ def retrieve_api_info(shodan_client: Shodan) -> ShodanAPIInfo:
     """
 
     try:
-        resp: dict = shodan_client.info()
+        resp: dict[str, Any] = shodan_client.info()
     except SAPIError as e:
         rprint(f"[red]Error getting Shodan API info: {e}[/red]")
         raise typer.Exit(1) from e
@@ -326,7 +325,7 @@ def start_new_shodan_scan(shodan_client: Shodan, current_ip: IPNetwork) -> None:
     """
 
     try:
-        results: dict = shodan_client.scan(current_ip.__str__())
+        results: dict[str, Any] = shodan_client.scan(current_ip.__str__())
     except SAPIError as e:
         rprint(f"[red]Error starting Shodan scan: {e}[/red]")
         raise typer.Exit(1) from e
@@ -385,7 +384,7 @@ def print_shodan_scan_results(shodan_client: Shodan, scan_id: str) -> None:
     """
 
     try:
-        results: dict = shodan_client.scan_status(scan_id)
+        results: dict[str, Any] = shodan_client.scan_status(scan_id)
     except SAPIError as e:
         rprint(f"[red]Error getting Shodan scan results: {e}[/red]")
         raise typer.Exit(1) from e
@@ -463,7 +462,7 @@ def cli(
             help="Verbose mode. Repeat for increased verbosity",
         ),
     ] = 0,
-    version: Annotated[
+    version: Annotated[  # pyright: ignore[reportUnusedParameter]
         bool,
         typer.Option(
             "--version",

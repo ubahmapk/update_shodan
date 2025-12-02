@@ -1,7 +1,8 @@
 from enum import Enum
+from typing import override
 
 from netaddr import IPNetwork
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ShodanUsageLimits(BaseModel):
@@ -31,11 +32,12 @@ class ShodanUsageLimits(BaseModel):
     query_credits: int
     monitored_ips: int
 
+    @override
     def __str__(self) -> str:
         message: str = (
-            f"Scan Credits: {self.scan_credits}"
-            f"Query Credits: {self.query_credits}"
-            f"Monitored IPs: {self.monitored_ips}"
+            f"Scan Credits: {self.scan_credits}\n"
+            f"Query Credits: {self.query_credits}\n"
+            f"Monitored IPs: {self.monitored_ips}\n"
         )
 
         return message
@@ -86,13 +88,14 @@ class ShodanAPIInfo(BaseModel):
     unlocked_left: int
     telnet: bool
 
+    @override
     def __str__(self) -> str:
         message: str = (
             f"Scan Credits Remaining: {self.scan_credits}\n"
             f"Plan: {self.plan}\n"
-            f"Usage Limits:\n"
-            f"  {self.usage_limits}\n"
-            f"HTTPS: {self.https}\n"
+            f"\nUsage Limits:\n"
+            f"{self.usage_limits}\n"
+            f"\nHTTPS: {self.https}\n"
             f"Unlocked: {self.unlocked}\n"
             f"Unlocked left: {self.unlocked_left}\n"
             f"Query Credits: {self.query_credits}\n"
@@ -119,12 +122,12 @@ class ShodanFilter(BaseModel):
         Returns the number of IP networks in the filter.
     """
 
-    model_config = {"arbitrary_types_allowed": True}
+    model_config: ConfigDict = {"arbitrary_types_allowed": True}  # pyright: ignore[reportIncompatibleVariableOverride]
     ip_network_list: list[IPNetwork] = Field(alias="ip", default_factory=list)
 
     @field_validator("ip_network_list", mode="before")
     @classmethod
-    def validate_ip(cls, value):
+    def validate_ip(cls, value):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """
         Validate and convert the input value to a list of IPNetwork objects.
 
@@ -190,7 +193,7 @@ class ShodanAlert(BaseModel):
             f"Name: {self.name}\nID: {self.id}\nSize: {self.size}\nFilters:\n"
         )
 
-        addresses: list = [
+        addresses: list[str] = [
             f" IP: {address.ip}" for address in self.filters.ip_network_list
         ]
 
